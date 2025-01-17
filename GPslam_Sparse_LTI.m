@@ -281,7 +281,26 @@ plot(landmarks_true(:,1), landmarks_true(:,2), 'ks','MarkerSize',8, 'LineWidth',
 % Plot the estimated landmarks
 plot(Landmarks_hat(:,1), Landmarks_hat(:,2), 'co','MarkerSize',8, 'LineWidth',2);
 
-legend('Robot Prior','Robot Meas.','Robot Estimate','Robot Query','True Landmarks','Estimated Landmarks');
+% Plot the measured landmarks
+for n = 1:N
+    x_r = true_x(n);  % True position of the robot at time n
+    y_r = true_y(n);  % True position of the robot at time n
+    for i = 1:L
+        dx = landmarks_true(i,1) - x_r;  % Difference in position between robot and landmark
+        dy = landmarks_true(i,2) - y_r;  % Difference in position between robot and landmark
+        range_meas = sqrt(dx^2 + dy^2) + sigma_range*randn;  % Range measurement with noise
+        bearing_meas = atan2(dy, dx) + sigma_bearing*randn;  % Bearing measurement with noise
+
+        % Convert range and bearing measurements to cartesian coordinates
+        x_l_meas = x_r + range_meas * cos(bearing_meas);  % x-coordinate of measured landmark
+        y_l_meas = y_r + range_meas * sin(bearing_meas);  % y-coordinate of measured landmark
+
+        % Plot the measured landmarks with purple crosses
+        plot(x_l_meas, y_l_meas, '*','MarkerSize',3, 'LineWidth',0.5, 'Color', "#77AC30");
+    end
+end
+
+legend('Robot Prior','Robot Meas.','Robot Estimate','Robot Query','Landmarks True','Landmarks Estimate','Landmarks Meas.');
 xlabel('X'); ylabel('Y');
 title('Continuous-time Trajectory Estimation with Landmarks');
 
